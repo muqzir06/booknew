@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Library Management System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h4 class="mb-0 fw-bold text-white"><i class="fa-solid fa-book-open me-2 text-indigo"></i>Libraria</h4>
+                <small class="text-muted">Management System</small>
+            </div>
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_books') }}"><i class="fa-solid fa-book"></i> Manage Books</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('add_book') }}"><i class="fa-solid fa-circle-plus"></i> Add Book</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('students') }}"><i class="fa-solid fa-user-graduate"></i> Manage Students</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('issue_book') }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Issue Book</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('return_book') }}"><i class="fa-solid fa-arrow-down-long"></i> Return Book</a>
+                </li>
+                <li class="mt-5">
+                    <a href="{{ url_for('logout') }}" class="text-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="sidebar-toggle-btn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="d-flex align-items-center ms-auto">
+                        <span class="navbar-text me-3 text-dark fw-medium">
+                            <i class="fa-solid fa-user-circle me-1 text-indigo"></i> Welcome, {{ session.username }}
+                        </span>
+                        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">
+                            <i class="fa-solid fa-power-off me-1"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid p-4">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                <i class="fa-solid {{ 'fa-triangle-exclamation' if category == 'error' else 'fa-circle-check' }} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h3 fw-bold text-dark mb-0">Library Dashboard</h2>
+                    <span class="text-muted small fw-medium">
+                        <i class="fa-solid fa-calendar-day me-1"></i> Today: {{ today_date }}
+                    </span>
+                </div>
+
+                <!-- Statistics Cards Grid -->
+                <div class="row g-4 mb-4">
+                    <!-- Total Books -->
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="card stat-card p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon bg-primary-subtle text-indigo" style="background-color: #e0e7ff; color: #4f46e5;">
+                                    <i class="fa-solid fa-book"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="text-muted mb-1 small fw-bold">Total Books</h6>
+                                    <h3 class="fw-bold mb-0 text-dark">{{ stats.total_books }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Books -->
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="card stat-card p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon bg-success-subtle text-success" style="background-color: #d1fae5; color: #059669;">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="text-muted mb-1 small fw-bold">Available</h6>
+                                    <h3 class="fw-bold mb-0 text-dark">{{ stats.available_books }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Students -->
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="card stat-card p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon bg-info-subtle text-info" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-users"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="text-muted mb-1 small fw-bold">Students</h6>
+                                    <h3 class="fw-bold mb-0 text-dark">{{ stats.total_students }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Issued Books -->
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="card stat-card p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon bg-warning-subtle text-warning" style="background-color: #fef3c7; color: #d97706;">
+                                    <i class="fa-solid fa-book-bookmark"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="text-muted mb-1 small fw-bold">Active Issues</h6>
+                                    <h3 class="fw-bold mb-0 text-dark">{{ stats.issued_books }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Stats Row (e.g. Overdue) -->
+                <div class="row g-4 mb-4">
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card stat-card p-3 border-start border-danger border-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="text-muted mb-1 small fw-bold text-uppercase">Overdue Book Fines</h6>
+                                    <h4 class="fw-bold mb-0 text-danger">Rs. {{ stats.total_fines }}</h4>
+                                </div>
+                                <div class="fs-2 text-danger opacity-50">
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card stat-card p-3 border-start border-warning border-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="text-muted mb-1 small fw-bold text-uppercase">Pending Return Count</h6>
+                                    <h4 class="fw-bold mb-0 text-warning">{{ stats.overdue_count }} Books</h4>
+                                </div>
+                                <div class="fs-2 text-warning opacity-50">
+                                    <i class="fa-solid fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities Section -->
+                <div class="row">
+                    <div class="col-12">
+                        <h4 class="h5 fw-bold text-dark mb-3"><i class="fa-solid fa-list-check text-indigo me-2"></i>Recent Transactions</h4>
+                        
+                        <div class="table-responsive-custom">
+                            <table class="table table-custom table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Book Issued</th>
+                                        <th>Issue Date</th>
+                                        <th>Due Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for trans in recent_transactions %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">{{ trans.student_name }}</div>
+                                            <small class="text-muted">{{ trans.student_id_val }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-medium">{{ trans.book_title }}</div>
+                                            <small class="text-muted">ISBN: {{ trans.isbn }}</small>
+                                        </td>
+                                        <td>{{ trans.issue_date }}</td>
+                                        <td>{{ trans.return_date }}</td>
+                                        <td>
+                                            {% if trans.status == 'Returned' %}
+                                                <span class="badge badge-returned">Returned</span>
+                                            {% elif trans.is_overdue %}
+                                                <span class="badge badge-overdue">Overdue</span>
+                                            {% else %}
+                                                <span class="badge badge-issued">Issued</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if trans.status == 'Issued' %}
+                                                <a href="{{ url_for('return_book') }}" class="btn btn-sm btn-indigo">
+                                                    <i class="fa-solid fa-rotate-left me-1"></i> Return
+                                                </a>
+                                            {% else %}
+                                                <span class="text-success small"><i class="fa-solid fa-check-double me-1"></i> Completed</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            No recent transactions found.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

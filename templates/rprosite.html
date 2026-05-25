@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ profile.nickname }} Activity Report | GitHub rprosite</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rprosite.css') }}">
+</head>
+<body class="rprosite-body">
+
+    <!-- Navbar -->
+    <nav class="rprosite-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fa-solid fa-book-open me-2 text-indigo"></i>Libraria <span class="fs-6 fw-normal text-muted">/ GitHub Report</span>
+            </a>
+            <a class="btn-back" href="{{ url_for('index') }}">
+                <i class="fa-solid fa-arrow-left me-2"></i>Back to Library
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        
+        <!-- Profile Overview Glass Panel -->
+        <section class="profile-hero text-center">
+            <div class="glass-panel">
+                <div class="profile-avatar-container">
+                    <img class="profile-avatar" src="{{ profile.avatar_url }}" alt="{{ profile.nickname }} Avatar">
+                </div>
+                <h1 id="profile-name" class="profile-username">{{ profile.nickname }}</h1>
+                <div class="profile-tag">GitHub Core Profile</div>
+                <p class="profile-bio">{{ profile.bio }}</p>
+                <div class="mb-3">
+                    <a href="https://github.com/muqzir06" target="_blank" class="btn btn-outline-light rounded-pill px-4 btn-sm" style="border-color: rgba(255,255,255,0.2); font-weight: 500; font-size: 0.85rem; padding: 0.5rem 1.2rem; transition: all 0.2s;">
+                        <i class="fa-brands fa-github me-2" style="color: var(--color-cyan);"></i>View GitHub Profile
+                    </a>
+                </div>
+                <div class="profile-badges d-flex justify-content-center flex-wrap">
+                    <span class="badge"><i class="fa-solid fa-users me-1 text-primary"></i> {{ profile.followers }} followers</span>
+                    <span class="badge"><i class="fa-solid fa-user-plus me-1 text-success"></i> {{ profile.following }} following</span>
+                    <span class="badge"><i class="fa-solid fa-folder-open me-1 text-warning"></i> {{ profile.total_repos }} repositories</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- View Scope Toggle -->
+        <div class="text-center">
+            <div class="time-selector-container" id="timeframe-toggle-wrapper">
+                <button type="button" class="time-btn active" id="btn-timeframe" onclick="switchView('timeframe')">
+                    May 01 - May 22, 2026 (Report)
+                </button>
+                <button type="button" class="time-btn" id="btn-full" onclick="switchView('full')">
+                    Full Year 2026
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats Grid -->
+        <section class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-5" id="stats-container">
+            <div class="col">
+                <div class="stat-card blue">
+                    <div class="stat-icon-wrapper">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-contrib-count">{{ timeframe_contribs }}</span>
+                        <span class="stat-label" id="stat-contrib-label">Report Period Commits</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card cyan">
+                    <div class="stat-icon-wrapper">
+                        <i class="fa-solid fa-folder"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ profile.total_repos }}</span>
+                        <span class="stat-label">Total Repositories</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card pink">
+                    <div class="stat-icon-wrapper">
+                        <i class="fa-solid fa-thumbtack"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ profile.pinned_repos|length }}</span>
+                        <span class="stat-label">Pinned Repositories</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card purple">
+                    <div class="stat-icon-wrapper">
+                        <i class="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">CSS & HTML</span>
+                        <span class="stat-label">Primary Stack</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contribution Calendar Section -->
+        <section class="mb-5">
+            <h2 class="section-title"><i class="fa-solid fa-calendar-days"></i>Contribution Activity</h2>
+            <div class="heatmap-card position-relative">
+                <div class="calendar-scroll-wrapper">
+                    <!-- Months Labels -->
+                    <div class="calendar-header-weeks">
+                        <span>Jan</span>
+                        <span>Feb</span>
+                        <span>Mar</span>
+                        <span>Apr</span>
+                        <span>May</span>
+                        <span>Jun</span>
+                        <span>Jul</span>
+                        <span>Aug</span>
+                        <span>Sep</span>
+                        <span>Oct</span>
+                        <span>Nov</span>
+                        <span>Dec</span>
+                    </div>
+                    
+                    <div class="calendar-grid-container">
+                        <!-- Days of Week labels -->
+                        <div class="calendar-days-labels">
+                            <span>Sun</span>
+                            <span>Mon</span>
+                            <span>Tue</span>
+                            <span>Wed</span>
+                            <span>Thu</span>
+                            <span>Fri</span>
+                            <span>Sat</span>
+                        </div>
+                        
+                        <!-- Grid Cells -->
+                        <div class="calendar-grid" id="calendar-grid-element">
+                            <!-- 1. Padded days for alignment (2026 starts on Thursday, so we pad Sunday, Monday, Tuesday, Wednesday: 4 days) -->
+                            <div class="calendar-cell-pad" style="grid-row: 1 / span 1; width: 12px; height: 12px; opacity: 0; pointer-events: none;"></div>
+                            <div class="calendar-cell-pad" style="grid-row: 2 / span 1; width: 12px; height: 12px; opacity: 0; pointer-events: none;"></div>
+                            <div class="calendar-cell-pad" style="grid-row: 3 / span 1; width: 12px; height: 12px; opacity: 0; pointer-events: none;"></div>
+                            <div class="calendar-cell-pad" style="grid-row: 4 / span 1; width: 12px; height: 12px; opacity: 0; pointer-events: none;"></div>
+                            
+                            <!-- 2. Actual 2026 days -->
+                            {% for day in calendar_days %}
+                            <div class="calendar-cell" 
+                                 id="cell-{{ day.date }}"
+                                 data-date="{{ day.date }}" 
+                                 data-level="{{ day.level }}" 
+                                 data-count="{{ day.count }}"
+                                 style="grid-row: {{ day.day_of_week + 1 }} / span 1;">
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heatmap Legend -->
+                <div class="heatmap-legend">
+                    <span>Less</span>
+                    <div class="legend-cell" style="background-color: var(--level-0)"></div>
+                    <div class="legend-cell" style="background-color: var(--level-1)"></div>
+                    <div class="legend-cell" style="background-color: var(--level-2)"></div>
+                    <div class="legend-cell" style="background-color: var(--level-3)"></div>
+                    <div class="legend-cell" style="background-color: var(--level-4)"></div>
+                    <span>More</span>
+                </div>
+
+                <!-- Floating Tooltip -->
+                <div id="calendar-tooltip" class="cell-tooltip"></div>
+            </div>
+        </section>
+
+        <!-- Timeline & Pinned Repos Grid -->
+        <section class="row g-5">
+            
+            <!-- Left Side: Activity Timeline -->
+            <div class="col-lg-5">
+                <h2 class="section-title"><i class="fa-solid fa-chart-line"></i>Timeline History</h2>
+                
+                <!-- Notice for May Timeframe -->
+                <div class="notice-box mb-4" id="timeframe-notice">
+                    <div class="notice-icon"><i class="fa-solid fa-circle-info"></i></div>
+                    <div>
+                        <div class="notice-title">May 1 – May 22, 2026 Report</div>
+                        <p class="mb-0">There is no active repository commits recorded for user <strong>{{ profile.nickname }}</strong> during this specific period on GitHub.</p>
+                    </div>
+                </div>
+
+                <!-- Actual Timeline (Initially hidden/grayed or showing active year) -->
+                <div class="timeline-container" id="timeline-list">
+                    {% for act in activities %}
+                    <div class="timeline-item">
+                        <div class="timeline-badge"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-date">{{ act.date }}</span>
+                            <div class="timeline-header">
+                                <span class="timeline-repo-badge me-2"><i class="fa-brands fa-git-alt"></i> {{ act.repo }}</span>
+                            </div>
+                            <p class="timeline-desc">{{ act.desc }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Side: Pinned Repositories -->
+            <div class="col-lg-7">
+                <h2 class="section-title"><i class="fa-solid fa-code-branch"></i>Featured Repositories</h2>
+                <div class="row row-cols-1 row-cols-sm-2 g-4">
+                    {% for repo in profile.pinned_repos %}
+                    <div class="col">
+                        <div class="repo-card">
+                            <div>
+                                <div class="repo-header">
+                                    <a href="{{ repo.url }}" target="_blank" class="repo-name">{{ repo.name }}</a>
+                                    <i class="fa-brands fa-github repo-icon-git"></i>
+                                </div>
+                                <p class="repo-desc">{{ repo.desc }}</p>
+                            </div>
+                            <div class="repo-meta">
+                                <div>
+                                    <span class="repo-lang-dot" style="background-color: {{ repo.lang_color }};"></span>
+                                    <span>{{ repo.lang }}</span>
+                                </div>
+                                <div class="repo-stats">
+                                    <span><i class="fa-regular fa-star"></i> {{ repo.stars }}</span>
+                                    <span><i class="fa-solid fa-code-fork"></i> {{ repo.forks }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+        </section>
+
+    </main>
+
+    <!-- Custom Script -->
+    <script>
+        // Store overall numbers
+        const timeframeContribs = {{ timeframe_contribs }};
+        const total2026Contribs = {{ total_2026_contribs }};
+        
+        // Define function to switch active view
+        function switchView(view) {
+            const btnTimeframe = document.getElementById('btn-timeframe');
+            const btnFull = document.getElementById('btn-full');
+            const statVal = document.getElementById('stat-contrib-count');
+            const statLabel = document.getElementById('stat-contrib-label');
+            const noticeBox = document.getElementById('timeframe-notice');
+            const timelineList = document.getElementById('timeline-list');
+            const cells = document.querySelectorAll('.calendar-cell');
+            
+            if (view === 'timeframe') {
+                btnTimeframe.classList.add('active');
+                btnFull.classList.remove('active');
+                statVal.innerText = timeframeContribs;
+                statLabel.innerText = "Report Period Commits";
+                
+                // Show May notice
+                noticeBox.classList.remove('d-none');
+                
+                // Gray out timeline items
+                timelineList.style.opacity = '0.35';
+                timelineList.style.pointerEvents = 'none';
+                
+                // Fade out calendar cells not in May 1 - May 22
+                cells.forEach(cell => {
+                    const dt = cell.getAttribute('data-date');
+                    if (dt.startsWith('2026-05')) {
+                        const day = parseInt(dt.split('-')[2]);
+                        if (day >= 1 && day <= 22) {
+                            cell.classList.remove('fade-out');
+                        } else {
+                            cell.classList.add('fade-out');
+                        }
+                    } else {
+                        cell.classList.add('fade-out');
+                    }
+                });
+            } else {
+                btnTimeframe.classList.remove('active');
+                btnFull.classList.add('active');
+                statVal.innerText = total2026Contribs;
+                statLabel.innerText = "Total Year Commits (2026)";
+                
+                // Hide May notice
+                noticeBox.classList.add('d-none');
+                
+                // Active timeline
+                timelineList.style.opacity = '1';
+                timelineList.style.pointerEvents = 'auto';
+                
+                // Reset calendar cells opacity
+                cells.forEach(cell => {
+                    cell.classList.remove('fade-out');
+                });
+            }
+        }
+
+        // Initialize tooltip behavior
+        document.addEventListener('DOMContentLoaded', () => {
+            const cells = document.querySelectorAll('.calendar-cell');
+            const tooltip = document.getElementById('calendar-tooltip');
+            
+            cells.forEach(cell => {
+                cell.addEventListener('mouseover', (e) => {
+                    const count = cell.getAttribute('data-count');
+                    const date = cell.getAttribute('data-date');
+                    if (!date) return;
+                    
+                    const dateParts = date.split('-');
+                    const year = dateParts[0];
+                    const monthIdx = parseInt(dateParts[1]) - 1;
+                    const day = parseInt(dateParts[2]);
+                    
+                    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    const formattedDate = `${months[monthIdx]} ${day}, ${year}`;
+                    
+                    const text = `${count} contribution${count != 1 ? 's' : ''} on ${formattedDate}`;
+                    tooltip.innerText = text;
+                    tooltip.classList.add('show');
+                    
+                    // Positioning details
+                    const rect = cell.getBoundingClientRect();
+                    const wrapperRect = cell.closest('.heatmap-card').getBoundingClientRect();
+                    
+                    // Adjust spacing
+                    tooltip.style.left = (rect.left - wrapperRect.left + rect.width / 2) + 'px';
+                    tooltip.style.top = (rect.top - wrapperRect.top) + 'px';
+                });
+                
+                cell.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('show');
+                });
+            });
+            
+            // Set initial state
+            switchView('timeframe');
+        });
+    </script>
+</body>
+</html>
