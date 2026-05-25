@@ -673,5 +673,6 @@ def return_book():
 # APPLICATION RUNNER
 # --------------------------------------------------------
 if __name__ == '__main__':
-    # Runs the Flask application on port 5000 in debug mode
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Runs the Flask application on port 5000 (or the port defined by the environment)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
