@@ -9,7 +9,7 @@
     <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
 
@@ -22,25 +22,25 @@
             </div>
             <ul class="list-unstyled components">
                 <li>
-                    <a href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                    <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('manage_books') }}"><i class="fa-solid fa-book"></i> Manage Books</a>
+                    <a href="manage_books.html"><i class="fa-solid fa-book"></i> Manage Books</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('add_book') }}"><i class="fa-solid fa-circle-plus"></i> Add Book</a>
+                    <a href="add_book.html"><i class="fa-solid fa-circle-plus"></i> Add Book</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('students') }}"><i class="fa-solid fa-user-graduate"></i> Manage Students</a>
+                    <a href="students.html"><i class="fa-solid fa-user-graduate"></i> Manage Students</a>
                 </li>
                 <li class="active">
-                    <a href="{{ url_for('issue_book') }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Issue Book</a>
+                    <a href="issue_book.html"><i class="fa-solid fa-arrow-up-from-bracket"></i> Issue Book</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('return_book') }}"><i class="fa-solid fa-arrow-down-long"></i> Return Book</a>
+                    <a href="return_book.html"><i class="fa-solid fa-arrow-down-long"></i> Return Book</a>
                 </li>
                 <li class="mt-5">
-                    <a href="{{ url_for('logout') }}" class="text-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    <a href="javascript:void(0)" onclick="Auth.logout()" class="text-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
                 </li>
             </ul>
         </nav>
@@ -55,9 +55,9 @@
                     </button>
                     <div class="d-flex align-items-center ms-auto">
                         <span class="navbar-text me-3 text-dark fw-medium">
-                            <i class="fa-solid fa-user-circle me-1 text-indigo"></i> Welcome, {{ session.username }}
+                            <i class="fa-solid fa-user-circle me-1 text-indigo"></i> Welcome, <span id="admin-username-display">Admin</span>
                         </span>
-                        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">
+                        <a href="javascript:void(0)" onclick="Auth.logout()" class="btn btn-outline-danger btn-sm">
                             <i class="fa-solid fa-power-off me-1"></i> Logout
                         </a>
                     </div>
@@ -66,22 +66,12 @@
 
             <!-- Main Content -->
             <div class="container-fluid p-4">
-                <!-- Flash Messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                <i class="fa-solid {{ 'fa-triangle-exclamation' if category == 'error' else 'fa-circle-check' }} me-2"></i>
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                <!-- Flash Message Container -->
+                <div id="flash-message-container"></div>
 
                 <nav aria-label="breadcrumb" class="mb-4">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}" class="text-indigo text-decoration-none">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="dashboard.html" class="text-indigo text-decoration-none">Dashboard</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Issue Book</li>
                     </ol>
                 </nav>
@@ -91,27 +81,20 @@
                         <div class="card form-card p-4">
                             <div class="border-bottom pb-3 mb-4 d-flex align-items-center justify-content-between">
                                 <h3 class="h4 fw-bold text-dark mb-0"><i class="fa-solid fa-arrow-up-from-bracket text-indigo me-2"></i>Issue Book to Student</h3>
-                                <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-secondary">
+                                <a href="dashboard.html" class="btn btn-sm btn-outline-secondary">
                                     <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
                                 </a>
                             </div>
 
-                            <form action="{{ url_for('issue_book') }}" method="POST">
+                            <form>
                                 <div class="row g-3">
                                     <!-- Select Book -->
                                     <div class="col-12">
                                         <label for="book_id" class="form-label fw-semibold small text-muted">Select Book</label>
                                         <div class="input-group">
                                             <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-book"></i></span>
-                                            <select class="form-select" id="book_id" name="book_id" required>
-                                                <option value="" disabled selected>Search & Select Book...</option>
-                                                {% for book in books %}
-                                                    <option value="{{ book.id }}">
-                                                        {{ book.title }} by {{ book.author }} (ISBN: {{ book.isbn }}) [Avail: {{ book.available_qty }}]
-                                                    </option>
-                                                {% else %}
-                                                    <option disabled>No books available to issue</option>
-                                                {% endfor %}
+                                            <select class="form-select" id="book_id" required>
+                                                <!-- Populated dynamically -->
                                             </select>
                                         </div>
                                         <div class="form-text text-muted">Only books currently in stock are listed.</div>
@@ -122,15 +105,8 @@
                                         <label for="student_id" class="form-label fw-semibold small text-muted">Select Student</label>
                                         <div class="input-group">
                                             <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-user-graduate"></i></span>
-                                            <select class="form-select" id="student_id" name="student_id" required>
-                                                <option value="" disabled selected>Search & Select Student...</option>
-                                                {% for student in students %}
-                                                    <option value="{{ student.id }}">
-                                                        [{{ student.student_id }}] {{ student.name }} ({{ student.department }})
-                                                    </option>
-                                                {% else %}
-                                                    <option disabled>No students registered in directory</option>
-                                                {% endfor %}
+                                            <select class="form-select" id="student_id" required>
+                                                <!-- Populated dynamically -->
                                             </select>
                                         </div>
                                         <div class="form-text text-muted">Student must be registered before issuing a book.</div>
@@ -139,13 +115,13 @@
                                     <!-- Issue Date -->
                                     <div class="col-md-6">
                                         <label for="issue_date" class="form-label fw-semibold small text-muted">Issue Date</label>
-                                        <input type="date" class="form-control" id="issue_date" name="issue_date" value="{{ today_date }}" required>
+                                        <input type="date" class="form-control" id="issue_date" required>
                                     </div>
 
                                     <!-- Due Date (Return Date limit) -->
                                     <div class="col-md-6">
                                         <label for="return_date" class="form-label fw-semibold small text-muted">Due Date (Expected Return)</label>
-                                        <input type="date" class="form-control" id="return_date" name="return_date" value="{{ due_date_default }}" required>
+                                        <input type="date" class="form-control" id="return_date" required>
                                     </div>
                                 </div>
 
@@ -169,6 +145,6 @@
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="static/js/script.js"></script>
 </body>
 </html>

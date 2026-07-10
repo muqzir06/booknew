@@ -9,14 +9,14 @@
     <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
 
     <!-- Public Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold text-indigo" href="{{ url_for('index') }}">
+            <a class="navbar-brand fw-bold text-indigo" href="index.html">
                 <i class="fa-solid fa-book-open me-2"></i>Libraria
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
@@ -28,12 +28,12 @@
                         <span class="text-muted"><i class="fa-solid fa-clock me-1"></i> Hours: 9 AM - 6 PM</span>
                     </li>
                     <li class="nav-item me-3">
-                        <a class="nav-link text-indigo fw-bold" href="{{ url_for('rprosite') }}">
+                        <a class="nav-link text-indigo fw-bold" href="rprosite.html">
                             <i class="fa-brands fa-github me-1"></i>GitHub Report
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-indigo" href="{{ url_for('login') }}">
+                        <a class="btn btn-indigo" href="login.html">
                             <i class="fa-solid fa-lock me-2"></i>Admin Login
                         </a>
                     </li>
@@ -41,6 +41,9 @@
             </div>
         </div>
     </nav>
+
+    <!-- Flash Message Container -->
+    <div id="flash-message-container" class="container mt-3"></div>
 
     <!-- Header Hero Section -->
     <header class="public-header text-white position-relative overflow-hidden">
@@ -67,60 +70,11 @@
     <main class="container my-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h3 fw-bold text-dark"><i class="fa-solid fa-book-bookmark me-2 text-indigo"></i>Library Catalog</h2>
-            <span class="badge bg-indigo p-2" id="catalog-count">{{ books|length }} Books Available</span>
+            <span class="badge bg-indigo p-2" id="catalog-count">0 Books Available</span>
         </div>
 
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-5" id="books-catalog-grid">
-            {% for book in books %}
-            <div class="col book-catalog-card">
-                <div class="card h-100 store-card border-0 bg-transparent">
-                    <div class="card-img-wrapper position-relative overflow-hidden shadow-lg rounded-4 mb-3">
-                        <!-- Fetch book cover from OpenLibrary using ISBN, fallback to placeholder -->
-                        <img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn }}-L.jpg?default=false" 
-                             onerror="this.onerror=null; this.src='https://placehold.co/400x600/4f46e5/ffffff?text={{ book.title[:1] | urlencode }}';"
-                             class="card-img-top book-cover w-100 object-fit-cover" alt="{{ book.title }} Cover">
-                        
-                        <!-- Hover Overlay -->
-                        <div class="card-img-overlay d-flex flex-column justify-content-between p-3 book-hover-overlay transition-all">
-                            <div class="d-flex justify-content-end">
-                                {% if book.available_qty > 0 %}
-                                <span class="badge bg-success shadow-sm rounded-pill px-3 py-2"><i class="fa-solid fa-check me-1"></i> Available</span>
-                                {% else %}
-                                <span class="badge bg-danger shadow-sm rounded-pill px-3 py-2"><i class="fa-solid fa-xmark me-1"></i> Out</span>
-                                {% endif %}
-                            </div>
-                            <div class="overlay-details text-white text-start">
-                                <p class="small mb-1"><i class="fa-solid fa-barcode me-1"></i> <span class="card-isbn">{{ book.isbn }}</span></p>
-                                <p class="small mb-3"><i class="fa-solid fa-cubes me-1"></i> {{ book.quantity }} Total Copies</p>
-                                <button class="btn btn-light rounded-pill fw-bold w-100 shadow-sm mt-auto text-indigo btn-hover-scale view-details-btn"
-                                        data-title="{{ book.title }}"
-                                        data-author="{{ book.author }}"
-                                        data-isbn="{{ book.isbn }}"
-                                        data-category="{{ book.category }}"
-                                        data-quantity="{{ book.quantity }}"
-                                        data-available="{{ book.available_qty }}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#bookDetailsModal">View Details</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card-body p-0 text-center">
-                        <span class="text-uppercase category-label text-indigo fw-bold small mb-2 d-inline-block px-2 py-1 bg-indigo-soft rounded-pill card-category">{{ book.category }}</span>
-                        <h5 class="card-title fw-bolder text-dark mb-1 text-truncate px-2" title="{{ book.title }}">{{ book.title }}</h5>
-                        <p class="card-author text-muted small mb-0">{{ book.author }}</p>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="col-12 text-center py-5">
-                <div class="text-muted">
-                    <i class="fa-solid fa-book-open-reader fa-3x mb-3 text-indigo opacity-50"></i>
-                    <h4>No Books Found</h4>
-                    <p>We couldn't find any books in the database right now. Please check back later!</p>
-                </div>
-            </div>
-            {% endfor %}
+            <!-- Dynamically populated from static/js/script.js -->
         </div>
     </main>
 
@@ -177,7 +131,7 @@
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="static/js/script.js"></script>
     
     <!-- View Details Modal Controller -->
     <script>

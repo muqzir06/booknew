@@ -9,7 +9,7 @@
     <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
 
@@ -22,25 +22,25 @@
             </div>
             <ul class="list-unstyled components">
                 <li>
-                    <a href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                    <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('manage_books') }}"><i class="fa-solid fa-book"></i> Manage Books</a>
+                    <a href="manage_books.html"><i class="fa-solid fa-book"></i> Manage Books</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('add_book') }}"><i class="fa-solid fa-circle-plus"></i> Add Book</a>
+                    <a href="add_book.html"><i class="fa-solid fa-circle-plus"></i> Add Book</a>
                 </li>
                 <li class="active">
-                    <a href="{{ url_for('students') }}"><i class="fa-solid fa-user-graduate"></i> Manage Students</a>
+                    <a href="students.html"><i class="fa-solid fa-user-graduate"></i> Manage Students</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('issue_book') }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Issue Book</a>
+                    <a href="issue_book.html"><i class="fa-solid fa-arrow-up-from-bracket"></i> Issue Book</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('return_book') }}"><i class="fa-solid fa-arrow-down-long"></i> Return Book</a>
+                    <a href="return_book.html"><i class="fa-solid fa-arrow-down-long"></i> Return Book</a>
                 </li>
                 <li class="mt-5">
-                    <a href="{{ url_for('logout') }}" class="text-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    <a href="javascript:void(0)" onclick="Auth.logout()" class="text-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
                 </li>
             </ul>
         </nav>
@@ -55,9 +55,9 @@
                     </button>
                     <div class="d-flex align-items-center ms-auto">
                         <span class="navbar-text me-3 text-dark fw-medium">
-                            <i class="fa-solid fa-user-circle me-1 text-indigo"></i> Welcome, {{ session.username }}
+                            <i class="fa-solid fa-user-circle me-1 text-indigo"></i> Welcome, <span id="admin-username-display">Admin</span>
                         </span>
-                        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">
+                        <a href="javascript:void(0)" onclick="Auth.logout()" class="btn btn-outline-danger btn-sm">
                             <i class="fa-solid fa-power-off me-1"></i> Logout
                         </a>
                     </div>
@@ -66,25 +66,18 @@
 
             <!-- Main Content -->
             <div class="container-fluid p-4">
-                <!-- Flash Messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                <i class="fa-solid {{ 'fa-triangle-exclamation' if category == 'error' else 'fa-circle-check' }} me-2"></i>
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                <!-- Flash Message Container -->
+                <div id="flash-message-container"></div>
 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                     <div>
                         <h2 class="h3 fw-bold text-dark mb-1">Student Directory</h2>
                         <p class="text-muted mb-0">Add, edit, and search student profiles registered in the system</p>
                     </div>
-                    <div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-indigo" onclick="exportCSV('students')">
+                            <i class="fa-solid fa-file-csv me-1"></i> Export CSV
+                        </button>
                         <button class="btn btn-indigo" data-bs-toggle="modal" data-bs-target="#addStudentModal">
                             <i class="fa-solid fa-user-plus me-1"></i> Register Student
                         </button>
@@ -97,7 +90,7 @@
                         <div class="col-md-6 col-lg-4">
                             <div class="input-group">
                                 <span class="input-group-text bg-white text-muted border-end-0"><i class="fa-solid fa-magnifying-glass text-indigo"></i></span>
-                                <input type="text" class="form-control border-start-0 table-search-input" data-target-table="studentsTable" placeholder="Type to search students...">
+                                <input type="text" class="form-control border-start-0 table-search-input" placeholder="Type to search students...">
                             </div>
                         </div>
                     </div>
@@ -105,7 +98,7 @@
 
                 <!-- Students Table -->
                 <div class="table-responsive-custom">
-                    <table class="table table-custom table-hover align-middle" id="studentsTable">
+                    <table class="table table-custom table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Student ID</th>
@@ -116,45 +109,8 @@
                                 <th class="text-end">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for student in students %}
-                            <tr>
-                                <td><span class="badge bg-indigo-subtle text-indigo p-2" style="background-color: #e0e7ff; color: #4f46e5;">{{ student.student_id }}</span></td>
-                                <td><div class="fw-bold text-dark">{{ student.name }}</div></td>
-                                <td>{{ student.email }}</td>
-                                <td>{{ student.phone }}</td>
-                                <td>{{ student.department }}</td>
-                                <td class="text-end">
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <!-- Edit trigger -->
-                                        <button class="btn btn-sm btn-outline-indigo edit-student-btn"
-                                                data-id="{{ student.id }}"
-                                                data-sid="{{ student.student_id }}"
-                                                data-name="{{ student.name }}"
-                                                data-email="{{ student.email }}"
-                                                data-phone="{{ student.phone }}"
-                                                data-dept="{{ student.department }}"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#editStudentModal">
-                                            <i class="fa-solid fa-user-pen"></i> Edit
-                                        </button>
-                                        <!-- Delete action -->
-                                        <a href="{{ url_for('delete_student', student_id=student.id) }}"
-                                           class="btn btn-sm btn-outline-danger confirm-delete"
-                                           data-message="Are you sure you want to delete student '{{ student.name }}'? All active issues under this student will be deleted.">
-                                            <i class="fa-solid fa-trash-can"></i> Delete
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">
-                                    <i class="fa-solid fa-users-slash fa-2x mb-2 text-indigo opacity-50"></i>
-                                    <div>No registered students found.</div>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        <tbody id="students-table-tbody">
+                            <!-- Dynamically loaded from script.js -->
                         </tbody>
                     </table>
                 </div>
@@ -171,27 +127,27 @@
                     <h5 class="modal-title fw-bold text-dark" id="addStudentModalLabel"><i class="fa-solid fa-user-plus text-indigo me-2"></i>Register New Student</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ url_for('add_student') }}" method="POST">
+                <form>
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="student_id" class="form-label small text-muted fw-semibold">Student ID (Unique)</label>
-                            <input type="text" class="form-control" id="student_id" name="student_id" placeholder="e.g. STU123" required>
+                            <input type="text" class="form-control" id="student_id" placeholder="e.g. STU123" required>
                         </div>
                         <div class="mb-3">
                             <label for="name" class="form-label small text-muted fw-semibold">Full Name</label>
-                            <input type="text" class="form-control" id="name" name="name" placeholder="e.g. John Doe" required>
+                            <input type="text" class="form-control" id="name" placeholder="e.g. John Doe" required>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label small text-muted fw-semibold">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="e.g. john@university.edu" required>
+                            <input type="email" class="form-control" id="email" placeholder="e.g. john@university.edu" required>
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label small text-muted fw-semibold">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="e.g. 9876543210" required>
+                            <input type="tel" class="form-control" id="phone" placeholder="e.g. 9876543210" required>
                         </div>
                         <div class="mb-3">
                             <label for="department" class="form-label small text-muted fw-semibold">Department</label>
-                            <input type="text" class="form-control" id="department" name="department" placeholder="e.g. Information Technology" required>
+                            <input type="text" class="form-control" id="department" placeholder="e.g. Information Technology" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -211,7 +167,7 @@
                     <h5 class="modal-title fw-bold text-dark" id="editStudentModalLabel"><i class="fa-solid fa-user-pen text-indigo me-2"></i>Edit Student Profile</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ url_for('edit_student') }}" method="POST">
+                <form>
                     <div class="modal-body">
                         <input type="hidden" id="edit_id" name="id">
 
@@ -249,31 +205,6 @@
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <!-- Page script to fill modal inputs -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const editStudentModal = document.getElementById('editStudentModal');
-            if (editStudentModal) {
-                editStudentModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    
-                    const id = button.getAttribute('data-id');
-                    const sid = button.getAttribute('data-sid');
-                    const name = button.getAttribute('data-name');
-                    const email = button.getAttribute('data-email');
-                    const phone = button.getAttribute('data-phone');
-                    const dept = button.getAttribute('data-dept');
-
-                    document.getElementById('edit_id').value = id;
-                    document.getElementById('edit_student_id').value = sid;
-                    document.getElementById('edit_name').value = name;
-                    document.getElementById('edit_email').value = email;
-                    document.getElementById('edit_phone').value = phone;
-                    document.getElementById('edit_department').value = dept;
-                });
-            }
-        });
-    </script>
+    <script src="static/js/script.js"></script>
 </body>
 </html>

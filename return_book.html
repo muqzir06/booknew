@@ -9,7 +9,7 @@
     <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
 
@@ -22,25 +22,25 @@
             </div>
             <ul class="list-unstyled components">
                 <li>
-                    <a href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                    <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('manage_books') }}"><i class="fa-solid fa-book"></i> Manage Books</a>
+                    <a href="manage_books.html"><i class="fa-solid fa-book"></i> Manage Books</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('add_book') }}"><i class="fa-solid fa-circle-plus"></i> Add Book</a>
+                    <a href="add_book.html"><i class="fa-solid fa-circle-plus"></i> Add Book</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('students') }}"><i class="fa-solid fa-user-graduate"></i> Manage Students</a>
+                    <a href="students.html"><i class="fa-solid fa-user-graduate"></i> Manage Students</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('issue_book') }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Issue Book</a>
+                    <a href="issue_book.html"><i class="fa-solid fa-arrow-up-from-bracket"></i> Issue Book</a>
                 </li>
                 <li class="active">
-                    <a href="{{ url_for('return_book') }}"><i class="fa-solid fa-arrow-down-long"></i> Return Book</a>
+                    <a href="return_book.html"><i class="fa-solid fa-arrow-down-long"></i> Return Book</a>
                 </li>
                 <li class="mt-5">
-                    <a href="{{ url_for('logout') }}" class="text-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    <a href="javascript:void(0)" onclick="Auth.logout()" class="text-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
                 </li>
             </ul>
         </nav>
@@ -55,9 +55,9 @@
                     </button>
                     <div class="d-flex align-items-center ms-auto">
                         <span class="navbar-text me-3 text-dark fw-medium">
-                            <i class="fa-solid fa-user-circle me-1 text-indigo"></i> Welcome, {{ session.username }}
+                            <i class="fa-solid fa-user-circle me-1 text-indigo"></i> Welcome, <span id="admin-username-display">Admin</span>
                         </span>
-                        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">
+                        <a href="javascript:void(0)" onclick="Auth.logout()" class="btn btn-outline-danger btn-sm">
                             <i class="fa-solid fa-power-off me-1"></i> Logout
                         </a>
                     </div>
@@ -66,23 +66,18 @@
 
             <!-- Main Content -->
             <div class="container-fluid p-4">
-                <!-- Flash Messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                <i class="fa-solid {{ 'fa-triangle-exclamation' if category == 'error' else 'fa-circle-check' }} me-2"></i>
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                <!-- Flash Message Container -->
+                <div id="flash-message-container"></div>
 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                     <div>
                         <h2 class="h3 fw-bold text-dark mb-1">Return Issued Books</h2>
                         <p class="text-muted mb-0">Record actual return dates, verify overdue days, and calculate fines</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-indigo" onclick="exportCSV('transactions')">
+                            <i class="fa-solid fa-file-csv me-1"></i> Export Transactions CSV
+                        </button>
                     </div>
                 </div>
 
@@ -92,7 +87,7 @@
                         <div class="col-md-6 col-lg-4">
                             <div class="input-group">
                                 <span class="input-group-text bg-white text-muted border-end-0"><i class="fa-solid fa-magnifying-glass text-indigo"></i></span>
-                                <input type="text" class="form-control border-start-0 table-search-input" data-target-table="issuedBooksTable" placeholder="Search by student, book, or ID...">
+                                <input type="text" class="form-control border-start-0 table-search-input" placeholder="Search by student, book, or ID...">
                             </div>
                         </div>
                     </div>
@@ -100,7 +95,7 @@
 
                 <!-- Active Issues Table -->
                 <div class="table-responsive-custom">
-                    <table class="table table-custom table-hover align-middle" id="issuedBooksTable">
+                    <table class="table table-custom table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Student</th>
@@ -111,46 +106,8 @@
                                 <th class="text-end">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for issue in issued_list %}
-                            <tr>
-                                <td>
-                                    <div class="fw-bold text-dark">{{ issue.student_name }}</div>
-                                    <span class="badge bg-light text-muted border">{{ issue.student_id_val }}</span>
-                                </td>
-                                <td>
-                                    <div class="fw-medium text-dark">{{ issue.book_title }}</div>
-                                    <small class="text-muted">ISBN: {{ issue.isbn }}</small>
-                                </td>
-                                <td>{{ issue.issue_date }}</td>
-                                <td>{{ issue.return_date }}</td>
-                                <td>
-                                    {% if issue.is_overdue %}
-                                        <span class="badge badge-overdue"><i class="fa-solid fa-circle-exclamation me-1"></i> Overdue (Rs. {{ issue.current_accumulated_fine }})</span>
-                                    {% else %}
-                                        <span class="badge badge-issued"><i class="fa-solid fa-clock me-1"></i> Normal</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-indigo return-btn"
-                                            data-issue-id="{{ issue.id }}"
-                                            data-student="{{ issue.student_name }} ({{ issue.student_id_val }})"
-                                            data-book="{{ issue.book_title }} (ISBN: {{ issue.isbn }})"
-                                            data-due-date="{{ issue.return_date }}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#returnBookModal">
-                                        <i class="fa-solid fa-arrow-turn-down-left me-1"></i> Process Return
-                                    </button>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">
-                                    <i class="fa-solid fa-check-double fa-2x mb-2 text-indigo opacity-50"></i>
-                                    <div>All issued books are returned! No pending records.</div>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        <tbody id="issued-books-tbody">
+                            <!-- Dynamically loaded from script.js -->
                         </tbody>
                     </table>
                 </div>
@@ -167,7 +124,7 @@
                     <h5 class="modal-title fw-bold text-dark" id="returnBookModalLabel"><i class="fa-solid fa-rotate-left text-indigo me-2"></i>Process Book Return</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ url_for('return_book') }}" method="POST">
+                <form>
                     <div class="modal-body">
                         <!-- Hidden Form Values -->
                         <input type="hidden" id="return_issue_id" name="issue_id">
@@ -215,41 +172,6 @@
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <!-- Page script to fill modal inputs -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const returnBookModal = document.getElementById('returnBookModal');
-            if (returnBookModal) {
-                returnBookModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    
-                    const issueId = button.getAttribute('data-issue-id');
-                    const student = button.getAttribute('data-student');
-                    const book = button.getAttribute('data-book');
-                    const dueDateStr = button.getAttribute('data-due-date');
-
-                    document.getElementById('return_issue_id').value = issueId;
-                    document.getElementById('return_student_name').innerText = student;
-                    document.getElementById('return_book_title').innerText = book;
-                    document.getElementById('due_date_val').innerText = dueDateStr;
-
-                    // Set today's date in actual_return_date picker
-                    const today = new Date();
-                    const year = today.getFullYear();
-                    const month = String(today.getMonth() + 1).padStart(2, '0');
-                    const day = String(today.getDate()).padStart(2, '0');
-                    const todayStr = `${year}-${month}-${day}`;
-                    
-                    const returnDatePicker = document.getElementById('actual_return_date');
-                    returnDatePicker.value = todayStr;
-
-                    // Manually trigger the 'change' event on the datepicker to calculate the initial fine
-                    const eventChange = new Event('change');
-                    returnDatePicker.dispatchEvent(eventChange);
-                });
-            }
-        });
-    </script>
+    <script src="static/js/script.js"></script>
 </body>
 </html>

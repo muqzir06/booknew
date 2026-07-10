@@ -1,6 +1,6 @@
 # Library Management System (Libraria)
 
-A complete, responsive, full-stack Library Management System built with Python Flask, MySQL, Bootstrap 5, and JavaScript. This project is designed to be highly professional, modern, and beginner-friendly.
+A complete, responsive, client-side Library Management System built with HTML5, Vanilla CSS3 (custom styles), Bootstrap 5, and JavaScript. This project is configured to run entirely in the browser using `localStorage` for database persistence, making it 100% compatible with static hosting platforms like **Netlify** or **GitHub Pages**.
 
 ---
 
@@ -9,30 +9,23 @@ A complete, responsive, full-stack Library Management System built with Python F
 ```text
 Library-Management-System/
 │
-├── app.py                  # Main Flask application (routes, logic, auth, transaction controls)
-├── requirements.txt        # Python dependency packages list
-├── library.sql             # MySQL schema and pre-populated sample database tables
+├── index.html              # Public Landing Page (Book catalog directory with live search)
+├── login.html              # Admin Login Page (Secure credentials panel)
+├── dashboard.html          # Administrative Dashboard (Metric cards, recent transaction history)
+├── add_book.html           # Add Book Form (Metadata inputs & validation)
+├── manage_books.html       # Manage Books Directory (Interactive table, Edit modal, CSV Export)
+├── students.html           # Student Directory (Single-page add/edit/delete, CSV Export)
+├── issue_book.html         # Issue Book Page (Selection form with stock checks)
+├── return_book.html        # Return Book Directory (Pending transactions table, dynamic fine modal, CSV Export)
+├── rprosite.html           # GitHub Profile Report page (Dynamic contribution calendar timeline)
 ├── README.md               # Setup and user documentation guide
 │
-├── database/
-│   └── db_config.py        # MySQL database connection helper using PyMySQL
-│
-├── static/
-│   ├── css/
-│   │   └── style.css       # Custom modern stylesheet (slate/indigo colors, dashboard elements)
-│   ├── js/
-│   │   └── script.js       # Client-side helpers (alerts timer, dynamic search, return fine calculator)
-│   └── images/             # Folder for assets (e.g., logo, cover images)
-│
-└── templates/
-    ├── index.html          # Public Landing Page (Book catalog directory with search)
-    ├── login.html          # Admin Login Page (Secure credentials panel)
-    ├── dashboard.html      # Administrative Dashboard (Metric cards, recent activity overview)
-    ├── add_book.html       # Add Book Form (Metadata inputs & validation)
-    ├── manage_books.html   # Manage Books Directory (Interactive table with edit/delete modals)
-    ├── students.html       # Student Directory (Single-page add/edit/delete student operations)
-    ├── issue_book.html     # Issue Book Page (Selection form with auto dates)
-    └── return_book.html    # Return Book Directory (Pending transactions table with dynamic fine modal)
+└── static/
+    ├── css/
+    │   ├── style.css       # Custom modern stylesheet (slate/indigo colors, dashboard elements)
+    │   └── rprosite.css    # Custom styles for the GitHub Profile Report page
+    └── js/
+        └── script.js       # Client-side core engine (localStorage DB, CRUD operations, CSV Export)
 ```
 
 ---
@@ -40,83 +33,37 @@ Library-Management-System/
 ## ⚡ Tech Stack
 
 * **Frontend**: HTML5, Vanilla CSS3 (custom styles), Bootstrap 5 (CSS & JS components), Font Awesome 6 (Icons).
-* **Backend**: Python 3, Flask.
-* **Database**: MySQL.
-* **DB Connection Interface**: PyMySQL (Pure Python MySQL client).
+* **Database & Auth**: HTML5 `localStorage` & `sessionStorage`.
+* **Data Portability**: JavaScript CSV Export.
 
 ---
 
-## 🛠️ Step-by-Step Setup Guide
+## 🛠️ Step-by-Step Setup & Netlify Deployment Guide
 
-Follow these steps to set up and run the project locally on your Windows system:
+### Running Locally
 
-### 1. Prerequisites
-Ensure you have the following installed:
-* **Python 3** (Verify by running `python --version` in terminal)
-* **MySQL Server** (via XAMPP, WampServer, or stand-alone MySQL Community Server)
+Since this is a client-side application, you can run it immediately without setting up databases or starting local backend servers:
 
----
-
-### 2. Database Setup
-
-1. Open your MySQL client (e.g., **phpMyAdmin**, **MySQL Workbench**, or **MySQL Command Line Client**).
-2. Run the following command to create the database:
-   ```sql
-   CREATE DATABASE library_db;
-   ```
-3. Import the database schema and sample data:
-   * **Using phpMyAdmin**: Go to phpMyAdmin, select `library_db`, click on the **Import** tab, choose the `library.sql` file from this project folder, and click **Go**.
-   * **Using MySQL Command Line**: Run:
-     ```bash
-     mysql -u root -p library_db < library.sql
-     ```
-
-*Note: If your MySQL password is not blank, edit the database configuration in `database/db_config.py`:*
-```python
-DB_PASSWORD = 'your_mysql_password_here'
-```
-
----
-
-### 3. Application Installation
-
-1. Navigate to the project directory:
+1. Double-click `index.html` to open the public book catalog directly in your browser.
+2. Alternatively, you can serve the directory using a simple local web server (like Live Server in VS Code, or python's `http.server`):
    ```powershell
-   cd Library-Management-System
+   python -m http.server 8000
    ```
-2. Create a virtual environment (recommended):
-   ```powershell
-   python -m venv venv
-   ```
-3. Activate the virtual environment:
-   * **Windows (PowerShell)**:
-     ```powershell
-     .\venv\Scripts\Activate.ps1
-     ```
-   * **Windows (Command Prompt)**:
-     ```cmd
-     .\venv\Scripts\activate.bat
-     ```
-4. Install dependencies:
-   ```powershell
-   pip install -r requirements.txt
-   ```
+   Then navigate to `http://localhost:8000/`.
 
----
+### Deploying to Netlify
 
-### 4. Running the Application
+To deploy your Library Management System to Netlify:
 
-1. While in the virtual environment, start the Flask development server:
-   ```powershell
-   python app.py
-   ```
-2. Open your web browser and navigate to:
-   * **Public Catalog**: `http://127.0.0.1:5000/`
-   * **Admin Login**: `http://127.0.0.1:5000/login`
+1. Log in to your [Netlify Dashboard](https://app.netlify.com/).
+2. Choose **Add new site** > **Deploy manually** (or connect your GitHub repository).
+3. Drag and drop the entire project folder (excluding `venv` or `.git`) into the Netlify drop zone.
+4. Your site will build instantly and will be ready to visit at a custom `.netlify.app` URL!
 
 ---
 
 ## 🔐 Default Admin Account
+
 Use these credentials to log in to the administrator portal:
 * **Username**: `admin`
 * **Password**: `admin123`
@@ -126,10 +73,13 @@ Use these credentials to log in to the administrator portal:
 ## ✨ Features Implemented
 
 1. **Public Book Catalog**: Guest view featuring real-time client-side listing, searching, filtering, and live "Available/Out of Stock" labels.
-2. **Secure Admin Authentication**: Section-guarded backend routing via `@login_required` decorators and securely encrypted sessions.
-3. **Responsive Slate Dashboard**: Clean metric cards showing total books, active issues, registered students, overdue books, and total fine amounts. Shows a feed of the 5 most recent activities.
+2. **Secure Admin Authentication**: Simulated browser sessions guard administrative routing. Direct page access redirects users back to `login.html`.
+3. **Database Seeding**: The system auto-seeds standard books (including custom requested titles: *The 48 Laws of Power*, *Discipline Is Destiny*, *Life is Love*, *Love Means What*), default student listings, and transaction history on first load.
 4. **Interactive Manage Screens**: Modals for editing books and student records inline without page refreshes, reducing layout fatigue.
-5. **Robust Quantity Management**: Intelligently blocks reducing book copies below the count of currently active student borrowings to prevent negative values.
+5. **Data Portability (CSV Export)**: Allows downloading system logs as spreadsheets:
+   - **Books Catalog**: Export list of books from `manage_books.html`.
+   - **Student Directory**: Export registered students from `students.html`.
+   - **Transactions log**: Export transaction records from `return_book.html`.
 6. **Due Date Tracking**: Highlights overdue list items clearly.
 7. **Dynamic Fine Calculator**: Automatically calculates student fees at a rate of **Rs. 10.00/day** directly in the return modal when picking return dates.
 8. **Responsive UI**: Fully mobile-responsive layouts adapting gracefully across tablets, laptops, and mobile screens.

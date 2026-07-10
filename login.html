@@ -9,7 +9,7 @@
     <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body class="login-body">
 
@@ -22,26 +22,16 @@
             <p class="text-muted">Sign in to manage library operations</p>
         </div>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        <i class="fa-solid {{ 'fa-triangle-exclamation' if category == 'error' else 'fa-circle-check' }} me-2"></i>
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <!-- Flash Message Container -->
+        <div id="flash-message-container"></div>
 
-        <form action="{{ url_for('login') }}" method="POST">
+        <form id="loginForm">
             <!-- Username Input -->
             <div class="mb-3">
                 <label for="username" class="form-label text-muted small fw-bold">Username</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
-                    <input type="text" class="form-control border-start-0" id="username" name="username" placeholder="e.g. admin" required>
+                    <input type="text" class="form-control border-start-0" id="username" placeholder="e.g. admin" required>
                 </div>
             </div>
 
@@ -50,7 +40,7 @@
                 <label for="password" class="form-label text-muted small fw-bold">Password</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
-                    <input type="password" class="form-control border-start-0" id="password" name="password" placeholder="••••••••" required>
+                    <input type="password" class="form-control border-start-0" id="password" placeholder="••••••••" required>
                 </div>
             </div>
 
@@ -60,7 +50,7 @@
             </button>
 
             <div class="text-center">
-                <a href="{{ url_for('index') }}" class="text-indigo text-decoration-none small">
+                <a href="index.html" class="text-indigo text-decoration-none small">
                     <i class="fa-solid fa-arrow-left me-1"></i> Back to Public Catalog
                 </a>
             </div>
@@ -70,6 +60,6 @@
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="static/js/script.js"></script>
 </body>
 </html>
